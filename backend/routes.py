@@ -7,6 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),"..")))
 
 from config import UPLOAD_FOLDER
 from utils.profiling import profile_data
+from utils.issues import detect_issues
 
 routes=Blueprint("routes", __name__)
 
@@ -41,3 +42,12 @@ def profile():
     except Exception as e:
         return{"Error":str(e)}, 500
     return jsonify(result)
+
+@routes.route("/issues", methods=["POST"])
+def issues_route():
+    if "file" not in request.files:
+        return{"Error":"No file"}, 400
+    file=request.files["file"]
+    df=pd.read_csv(file)
+    result=detect_issues(df)
+    return result
