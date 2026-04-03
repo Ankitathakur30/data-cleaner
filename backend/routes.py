@@ -8,6 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__),"..")))
 from config import UPLOAD_FOLDER
 from utils.profiling import profile_data
 from utils.issues import detect_issues
+from utils.cleaning import clean_data
 
 routes=Blueprint("routes", __name__)
 
@@ -51,3 +52,20 @@ def issues_route():
     df=pd.read_csv(file)
     result=detect_issues(df)
     return result
+
+@routes.route("/clean",methods=["POST"])
+def clean_route():
+    if "file" not in request.files:
+        return jsonify({"Error":"No file provided"}), 400
+    file=request.files["file"]
+    if file.filename=="":
+        return {"Error":"No file selected"}, 400
+    try:
+        df=pd.read_csv(file)
+        cleaned_df, report=clean_data(df)
+    except Exception as e:
+        return{"Error":str(e)}, 500
+    return {
+        "report":report,
+        "preview":cleaned_df.head().to_dict()
+    }
