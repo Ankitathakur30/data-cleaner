@@ -2,7 +2,7 @@ import pandas as pd
 def detect_issues(df):
     issues={}
     issues["missing_percent"]=(
-        df.isnull().sum/len(df)*100
+        df.isnull().sum()/len(df)*100
     ).to_dict()
     issues["duplicates"]=int(df.duplicated().sum())
     issues["constant_columns"]=[
